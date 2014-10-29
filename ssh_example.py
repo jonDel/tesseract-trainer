@@ -1,4 +1,4 @@
-import paramiko
+import paramiko, subprocess
 
 class RemoteServer():
   def __init__(self, keySSH = '/var/www/cgi-bin/.key/sshkey'):
@@ -40,4 +40,16 @@ class RemoteServer():
     except (paramiko.SSHException, socket.error) as se:
       return False,'Socket Timeout','Socket Timeout'
     return ret, output, error
+
+  def pingServer(self, server, tries = 4):
+    # SÃ£o executadas 'tryes' temtativas de pin
+    for i in range(1,tries):
+      ping = subprocess.Popen(['ping','-c','2','-i','0','-W','1',server], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      output, error = ping.communicate()
+      if re.search('2 packets transmitted, 2 received',output) != None:
+        print 'Servidor '+server+' estÃ¡ respondendo ping.'
+        return True
+
+    print 'Servidor '+server+' nÃ£o estÃ¡ respondendo ping.'
+    return False
 
